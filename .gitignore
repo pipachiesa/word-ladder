@@ -1,0 +1,5 @@
+.claude/
+tools/data/words_alpha.txt
+tools/data/en_50k.txt
+tools/data/first_names.txt
+tools/data/surnames.csv
