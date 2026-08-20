@@ -1,10 +1,13 @@
-// Builds puzzles.json: chains of 8 words, lengths 3..10, where each word is an
+// Builds puzzles.json: chains of 6 words, lengths 3..8, where each word is an
 // anagram of the previous word's letters plus exactly one new letter.
 const fs = require('fs');
 const path = require('path');
 
+const blocklist = new Set(
+  fs.readFileSync(path.join(__dirname, 'data/blocklist.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(Boolean)
+);
 const words = fs.readFileSync(path.join(__dirname, '../engwords.txt'), 'utf8')
-  .split('\n').map(w => w.trim()).filter(Boolean);
+  .split('\n').map(w => w.trim()).filter(w => w && /^[a-z]+$/.test(w) && !blocklist.has(w));
 
 // Use only the top of the frequency list as "common" — the tail of a 50k
 // list is full of corpus noise (names, abbreviations, foreign loanwords)
@@ -20,7 +23,7 @@ const commonSet = new Set(words.filter(w => {
   return r !== undefined && r < freqCapFor(w.length);
 }));
 
-const MIN_LEN = 3, MAX_LEN = 10;
+const MIN_LEN = 3, MAX_LEN = 8;
 const wordsByLen = {};
 for (let l = MIN_LEN; l <= MAX_LEN; l++) wordsByLen[l] = [];
 for (const w of words) if (w.length >= MIN_LEN && w.length <= MAX_LEN) wordsByLen[w.length].push(w);

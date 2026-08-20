@@ -1,4 +1,4 @@
-// Counts the total number of distinct 8-word chains (length 3 -> 10) reachable
+// Counts the total number of distinct 6-word chains (length 3 -> 8) reachable
 // in the full engwords.txt graph, as a richness sanity check.
 const fs = require('fs');
 const path = require('path');
@@ -6,7 +6,7 @@ const path = require('path');
 const words = fs.readFileSync(path.join(__dirname, '../engwords.txt'), 'utf8')
   .split('\n').map(w => w.trim()).filter(Boolean);
 
-const MIN_LEN = 3, MAX_LEN = 10;
+const MIN_LEN = 3, MAX_LEN = 8;
 const wordsByLen = {};
 for (let l = MIN_LEN; l <= MAX_LEN; l++) wordsByLen[l] = [];
 for (const w of words) if (w.length >= MIN_LEN && w.length <= MAX_LEN) wordsByLen[w.length].push(w);
@@ -57,4 +57,4 @@ for (let l = MIN_LEN + 1; l <= MAX_LEN; l++) {
 
 let grand = 0n;
 for (const w in count) grand += count[w];
-console.log('TOTAL distinct 8-word chains (length 3->10):', grand.toString());
+console.log('TOTAL distinct 6-word chains (length 3->8):', grand.toString());

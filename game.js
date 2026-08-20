@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const TOTAL_ROUNDS = 8;
+  const TOTAL_ROUNDS = 6;
   const TOTAL_HINTS = 3;
   const STORAGE_KEY = 'wordladder_progress_v2';
 
@@ -29,7 +29,6 @@
 
   let PUZZLES = [];
   let puzzle = null;
-  let isDaily = true;
 
   // per-round runtime state
   let roundIndex = 0;
@@ -40,21 +39,6 @@
   let slots = [];   // current round's slots: null | tileId
   let locked = false; // true while a check animation / round transition is in flight
 
-  function todayStr() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-
-  function hashStr(s) {
-    let h = 0;
-    for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; }
-    return h;
-  }
-
-  function dailyPuzzleId() {
-    return hashStr(todayStr()) % PUZZLES.length;
-  }
-
   function loadProgress() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -64,14 +48,13 @@
   }
 
   function saveProgress() {
-    if (!isDaily) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        date: todayStr(),
         puzzleId: puzzle.id,
         roundIndex,
         solvedWords,
         hintsRemaining,
+        hintTierThisRound,
       }));
     } catch (e) { /* ignore */ }
   }
@@ -80,44 +63,40 @@
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
   }
 
+  function randomPuzzleId(excludeId) {
+    if (PUZZLES.length <= 1) return 0;
+    let id;
+    do { id = Math.floor(Math.random() * PUZZLES.length); } while (id === excludeId);
+    return id;
+  }
+
   // ---------- setup ----------
 
-  function startDailyGame() {
-    isDaily = true;
-    const id = dailyPuzzleId();
+  function startGame() {
     const saved = loadProgress();
-    puzzle = PUZZLES[id];
-    if (saved && saved.date === todayStr() && saved.puzzleId === id) {
+    if (saved && PUZZLES[saved.puzzleId] && saved.roundIndex < TOTAL_ROUNDS) {
+      puzzle = PUZZLES[saved.puzzleId];
       roundIndex = saved.roundIndex;
-      solvedWords = saved.solvedWords;
+      solvedWords = saved.solvedWords || [];
       hintsRemaining = saved.hintsRemaining;
+      setupRound(saved.hintTierThisRound || 0);
     } else {
-      roundIndex = 0;
-      solvedWords = [];
-      hintsRemaining = TOTAL_HINTS;
       clearProgress();
-    }
-    if (roundIndex >= TOTAL_ROUNDS) {
-      renderWin();
-    } else {
-      setupRound();
+      startRandomGame();
     }
   }
 
   function startRandomGame() {
-    isDaily = false;
-    let id = Math.floor(Math.random() * PUZZLES.length);
-    if (PUZZLES.length > 1 && id === puzzle?.id) id = (id + 1) % PUZZLES.length;
-    puzzle = PUZZLES[id];
+    puzzle = PUZZLES[randomPuzzleId(puzzle?.id)];
     roundIndex = 0;
     solvedWords = [];
     hintsRemaining = TOTAL_HINTS;
     setupRound();
   }
 
-  function setupRound() {
+  function setupRound(resumeHintTier) {
     locked = false;
-    hintTierThisRound = 0;
+    hintTierThisRound = resumeHintTier || 0;
     const round = puzzle.rounds[roundIndex];
     slots = new Array(round.length).fill(null);
 
@@ -135,6 +114,12 @@
         tiles.push({ id: uid++, letter: t.letter, group: 'new', distractor: t.distractor, used: false, removed: false, locked: false });
       }
     }
+
+    // replay any hints already spent this round (e.g. after a page reload)
+    // so the board matches what the player already saw.
+    if (hintTierThisRound >= 1) removeADistractor();
+    if (hintTierThisRound >= 2) revealLetterAt(0, round.target);
+    if (hintTierThisRound >= 3) revealLetterAt(1, round.target);
 
     setMessage('', '');
     renderAll();
@@ -364,7 +349,7 @@
       </div>
     `;
     const chainEl = document.getElementById('win-chain');
-    const words = isDaily || solvedWords.length === TOTAL_ROUNDS ? (puzzle.words) : solvedWords;
+    const words = puzzle.words;
     words.forEach((w, i) => {
       const line = document.createElement('div');
       line.className = 'step';
@@ -457,7 +442,7 @@
     .then(r => r.json())
     .then(data => {
       PUZZLES = data;
-      startDailyGame();
+      startGame();
     })
     .catch(() => {
       setMessage('Could not load the puzzle data.', 'error');
