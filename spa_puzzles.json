@@ -1,0 +1,121 @@
+[
+    {
+      "id": 0,
+      "words": [
+        "ser",
+        "tres",
+        "estar",
+        "sentar",
+        "asentir",
+        "mientras"
+      ]
+    },
+  
+    {
+      "id": 1,
+      "words": [
+        "por",
+        "pero",
+        "preso",
+        "reposo",
+        "proceso",
+        "precioso"
+      ]
+    },
+  
+    {
+      "id": 2,
+      "words": [
+        "con",
+        "once",
+        "conde",
+        "docena",
+        "condena",
+        "condenar"
+      ]
+    },
+  
+    {
+      "id": 3,
+      "words": [
+        "par",
+        "para",
+        "tapar",
+        "aparte",
+        "aceptar",
+        "percatar"
+      ]
+    },
+  
+    {
+      "id": 4,
+      "words": [
+        "sur",
+        "usar",
+        "sumar",
+        "asumir",
+        "simular",
+        "impulsar"
+      ]
+    },
+  
+    {
+      "id": 5,
+      "words": [
+        "eso",
+        "esto",
+        "resto",
+        "sector",
+        "secreto",
+        "respecto"
+      ]
+    },
+  
+    {
+      "id": 6,
+      "words": [
+        "mar",
+        "amor",
+        "forma",
+        "formar",
+        "reforma",
+        "reformar"
+      ]
+    },
+  
+    {
+      "id": 7,
+      "words": [
+        "ira",
+        "aire",
+        "reina",
+        "sirena",
+        "asentir",
+        "destinar"
+      ]
+    },
+  
+    {
+      "id": 8,
+      "words": [
+        "ala",
+        "lata",
+        "plata",
+        "planta",
+        "planeta",
+        "plantear"
+      ]
+    },
+  
+    {
+      "id": 9,
+      "words": [
+        "eco",
+        "cero",
+        "corte",
+        "cierto",
+        "directo",
+        "director"
+      ]
+    }
+  ]

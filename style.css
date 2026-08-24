@@ -477,4 +477,64 @@ body {
 @media (max-width: 380px) {
   .slot { width: 32px; height: 40px; font-size: 17px; }
   .tile { width: 32px; height: 38px; font-size: 15px; }
+
+  /* =========================
+   LANGUAGE SWITCHER
+========================= */
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+
+.language-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.55;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 6px 4px;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.language-btn:hover {
+  opacity: 0.9;
+}
+
+
+.language-btn.active {
+  opacity: 1;
+}
+
+
+.language-divider {
+  opacity: 0.3;
+  user-select: none;
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+  .language-switcher {
+    margin-left: auto;
+    margin-right: 4px;
+  }
+
+  .language-btn {
+    font-size: 0.78rem;
+  }
+
+}
 }
