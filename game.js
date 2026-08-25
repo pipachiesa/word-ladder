@@ -11,6 +11,16 @@
 
   const STORAGE_KEY_PREFIX =
     'wordladder_progress_v3_';
+    const STATS_STORAGE_KEY =
+  'wordladder_stats_v1';
+
+let timerInterval = null;
+
+let gameStartTime = null;
+
+let elapsedSeconds = 0;
+
+let gameCompleted = false;
 
 
   const PUZZLE_FILES = {
@@ -106,7 +116,10 @@
         'Loading puzzle…',
 
       loadError:
-        'Could not load the puzzle data.'
+        'Could not load the puzzle data.',
+
+      stats:
+        'Stats'
 
     },
 
@@ -189,7 +202,10 @@
         'Cargando rompecabezas…',
 
       loadError:
-        'No se pudieron cargar los datos del rompecabezas.'
+        'No se pudieron cargar los datos del rompecabezas.',
+
+      stats:
+        'Estadísticas'
 
     }
 
@@ -286,8 +302,55 @@
       document.getElementById('how-to-p4'),
 
     howToP5:
-      document.getElementById('how-to-p5')
+      document.getElementById('how-to-p5'),
 
+    timerDisplay:
+      document.getElementById('timer-display'),
+    
+    statsBtn:
+      document.getElementById('stats-btn'),
+    
+    statsModal:
+      document.getElementById('stats-modal'),
+    
+    statsClose:
+      document.getElementById('stats-close'),
+    
+    statsCloseBtn:
+      document.getElementById('stats-close-btn'),
+    
+    statsTitle:
+      document.getElementById('stats-title'),
+    
+    gamesPlayedStat:
+      document.getElementById('games-played-stat'),
+    
+    gamesWonStat:
+      document.getElementById('games-won-stat'),
+    
+    winRateStat:
+      document.getElementById('win-rate-stat'),
+    
+    bestTimeStat:
+      document.getElementById('best-time-stat'),
+    
+    averageTimeStat:
+      document.getElementById('average-time-stat'),
+    
+    gamesPlayedLabel:
+      document.getElementById('games-played-label'),
+    
+    gamesWonLabel:
+      document.getElementById('games-won-label'),
+    
+    winRateLabel:
+      document.getElementById('win-rate-label'),
+    
+    bestTimeLabel:
+      document.getElementById('best-time-label'),
+    
+    averageTimeLabel:
+      document.getElementById('average-time-label'),  
   };
 
 
@@ -415,6 +478,410 @@
     }
 
   }
+
+  /* =========================
+   GAME TIMER
+========================= */
+
+function formatTime(seconds) {
+
+  const minutes =
+    Math.floor(seconds / 60);
+
+  const remainingSeconds =
+    seconds % 60;
+
+  return (
+    String(minutes).padStart(2, '0') +
+    ':' +
+    String(remainingSeconds).padStart(2, '0')
+  );
+
+}
+
+
+function updateTimerDisplay() {
+
+  if (!el.timerDisplay) {
+    return;
+  }
+
+  el.timerDisplay.textContent =
+    formatTime(elapsedSeconds);
+
+}
+
+
+function startTimer() {
+
+  stopTimer();
+
+  gameCompleted = false;
+
+  gameStartTime =
+    Date.now();
+
+  elapsedSeconds = 0;
+
+  updateTimerDisplay();
+
+
+  timerInterval =
+    setInterval(() => {
+
+      if (!gameStartTime) {
+        return;
+      }
+
+
+      elapsedSeconds =
+        Math.floor(
+          (
+            Date.now() -
+            gameStartTime
+          ) / 1000
+        );
+
+
+      updateTimerDisplay();
+
+    }, 1000);
+
+}
+
+
+function stopTimer() {
+
+  if (timerInterval) {
+
+    clearInterval(
+      timerInterval
+    );
+
+    timerInterval = null;
+
+  }
+
+
+  if (gameStartTime) {
+
+    elapsedSeconds =
+      Math.floor(
+        (
+          Date.now() -
+          gameStartTime
+        ) / 1000
+      );
+
+  }
+
+
+  updateTimerDisplay();
+
+}
+
+
+function getCurrentElapsedSeconds() {
+
+  if (!gameStartTime) {
+
+    return elapsedSeconds;
+
+  }
+
+
+  return Math.floor(
+
+    (
+      Date.now() -
+      gameStartTime
+    ) / 1000
+
+  );
+
+}
+
+/* =========================
+   PLAYER STATISTICS
+========================= */
+
+function getDefaultStats() {
+
+  return {
+
+    gamesPlayed: 0,
+
+    gamesWon: 0,
+
+    totalTime: 0,
+
+    bestTime: null
+
+  };
+
+}
+
+
+function getStats() {
+
+  try {
+
+    const raw =
+      localStorage.getItem(
+        STATS_STORAGE_KEY
+      );
+
+
+    if (!raw) {
+
+      return getDefaultStats();
+
+    }
+
+
+    const parsed =
+      JSON.parse(raw);
+
+
+    return {
+
+      ...getDefaultStats(),
+
+      ...parsed
+
+    };
+
+  }
+
+  catch (error) {
+
+    return getDefaultStats();
+
+  }
+
+}
+
+
+function saveStats(
+  stats
+) {
+
+  try {
+
+    localStorage.setItem(
+
+      STATS_STORAGE_KEY,
+
+      JSON.stringify(stats)
+
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      'Could not save stats:',
+      error
+    );
+
+  }
+
+}
+
+
+function recordGamePlayed() {
+
+  const stats =
+    getStats();
+
+
+  stats.gamesPlayed++;
+
+
+  saveStats(
+    stats
+  );
+
+}
+
+
+function recordGameWon(
+  completionTime
+) {
+
+  const stats =
+    getStats();
+
+
+  stats.gamesWon++;
+
+
+  stats.totalTime +=
+    completionTime;
+
+
+  if (
+
+    stats.bestTime === null ||
+
+    completionTime <
+      stats.bestTime
+
+  ) {
+
+    stats.bestTime =
+      completionTime;
+
+  }
+
+
+  saveStats(
+    stats
+  );
+
+}
+
+
+function updateStatsDisplay() {
+
+  const stats =
+    getStats();
+
+
+  const winRate =
+
+    stats.gamesPlayed > 0
+
+      ? Math.round(
+
+          (
+            stats.gamesWon /
+            stats.gamesPlayed
+          ) * 100
+
+        )
+
+      : 0;
+
+
+  const averageTime =
+
+    stats.gamesWon > 0
+
+      ? Math.round(
+
+          stats.totalTime /
+          stats.gamesWon
+
+        )
+
+      : null;
+
+
+  el.gamesPlayedStat.textContent =
+    String(
+      stats.gamesPlayed
+    );
+
+
+  el.gamesWonStat.textContent =
+    String(
+      stats.gamesWon
+    );
+
+
+  el.winRateStat.textContent =
+    `${winRate}%`;
+
+
+  el.bestTimeStat.textContent =
+
+    stats.bestTime !== null
+
+      ? formatTime(
+          stats.bestTime
+        )
+
+      : '—';
+
+
+  el.averageTimeStat.textContent =
+
+    averageTime !== null
+
+      ? formatTime(
+          averageTime
+        )
+
+      : '—';
+
+
+  /*
+    Translate labels.
+  */
+
+  el.statsTitle.textContent =
+    currentLanguage === 'es'
+      ? 'Tus estadísticas'
+      : 'Your Stats';
+
+
+  el.gamesPlayedLabel.textContent =
+    currentLanguage === 'es'
+      ? 'Partidas jugadas'
+      : 'Games Played';
+
+
+  el.gamesWonLabel.textContent =
+    currentLanguage === 'es'
+      ? 'Partidas ganadas'
+      : 'Games Won';
+
+
+  el.winRateLabel.textContent =
+    currentLanguage === 'es'
+      ? 'Porcentaje de victorias'
+      : 'Win Rate';
+
+
+  el.bestTimeLabel.textContent =
+    currentLanguage === 'es'
+      ? 'Mejor tiempo'
+      : 'Best Time';
+
+
+  el.averageTimeLabel.textContent =
+    currentLanguage === 'es'
+      ? 'Tiempo promedio'
+      : 'Average Time';
+
+
+  el.statsCloseBtn.textContent =
+    currentLanguage === 'es'
+      ? 'Cerrar'
+      : 'Close';
+
+}
+
+
+function openStats() {
+
+  updateStatsDisplay();
+
+
+  el.statsModal.hidden =
+    false;
+
+}
+
+
+function closeStats() {
+
+  el.statsModal.hidden =
+    true;
+
+}
 
 
   /* =========================
@@ -872,6 +1339,8 @@
           : TOTAL_HINTS;
 
 
+      startTimer();
+
       setupRound(
         saved.hintTierThisRound || 0
       );
@@ -898,18 +1367,18 @@
         )
       ];
 
-
     roundIndex = 0;
 
+solvedWords = [];
 
-    solvedWords = [];
+hintsRemaining =
+  TOTAL_HINTS;
 
+startTimer();
 
-    hintsRemaining =
-      TOTAL_HINTS;
+recordGamePlayed();
 
-
-    setupRound();
+setupRound();
 
   }
 
@@ -1852,6 +2321,12 @@
           TOTAL_ROUNDS
         ) {
 
+          stopTimer();
+
+          recordGameWon(
+            elapsedSeconds
+          );
+
           saveProgress();
 
           renderWin();
@@ -2472,6 +2947,22 @@
     );
 
 
+    el.statsBtn.textContent =
+      t('stats');
+
+
+    el.statsBtn.setAttribute(
+      'aria-label',
+      t('stats')
+    );
+
+
+    el.statsBtn.setAttribute(
+      'title',
+      t('stats')
+    );
+
+
     /*
       Footer.
     */
@@ -2724,6 +3215,41 @@
 
       el.howToModal.hidden =
         false;
+
+    }
+  );
+
+
+  el.statsBtn.addEventListener(
+    'click',
+    openStats
+  );
+
+
+  el.statsClose.addEventListener(
+    'click',
+    closeStats
+  );
+
+
+  el.statsCloseBtn.addEventListener(
+    'click',
+    closeStats
+  );
+
+
+  el.statsModal.addEventListener(
+    'click',
+    event => {
+
+      if (
+        event.target ===
+        el.statsModal
+      ) {
+
+        closeStats();
+
+      }
 
     }
   );
