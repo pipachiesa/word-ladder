@@ -16,6 +16,11 @@
     content="A Wordle-style word game: grow one word into another, letter by letter, across 6 rounds."
   >
 
+  <meta
+    name="theme-color"
+    content="#17232b"
+  >
+
   <link
     rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%2317232b%22/><text x=%2250%22 y=%2268%22 font-size=%2258%22 text-anchor=%22middle%22 fill=%22%23eef0c9%22 font-family=%22Verdana%22>W</text></svg>"
@@ -47,6 +52,35 @@
         LADDER
       </span>
     </div>
+
+
+    <!-- CURRENT GAME TIMER -->
+
+    <div
+      class="game-timer"
+      id="game-timer"
+      aria-label="Game timer"
+    >
+      <span class="timer-icon">
+        ⏱
+      </span>
+
+      <span id="timer-display">
+        00:00
+      </span>
+    </div>
+
+
+    <!-- STATS -->
+
+    <button
+      id="stats-btn"
+      class="icon-btn stats-btn"
+      aria-label="Statistics"
+      title="Statistics"
+    >
+      Stats
+    </button>
 
 
     <!-- LANGUAGE SELECTOR -->
@@ -285,6 +319,133 @@
       id="how-to-got-it"
     >
       Got it
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- STATS MODAL -->
+
+<div
+  class="modal-backdrop"
+  id="stats-modal"
+  hidden
+>
+
+  <div class="modal stats-modal">
+
+    <button
+      class="modal-close"
+      id="stats-close"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+
+    <h2 id="stats-title">
+      Your Stats
+    </h2>
+
+
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <span
+          class="stat-value"
+          id="games-played-stat"
+        >
+          0
+        </span>
+
+        <span
+          class="stat-label"
+          id="games-played-label"
+        >
+          Games Played
+        </span>
+      </div>
+
+
+      <div class="stat-card">
+        <span
+          class="stat-value"
+          id="games-won-stat"
+        >
+          0
+        </span>
+
+        <span
+          class="stat-label"
+          id="games-won-label"
+        >
+          Games Won
+        </span>
+      </div>
+
+
+      <div class="stat-card">
+        <span
+          class="stat-value"
+          id="win-rate-stat"
+        >
+          0%
+        </span>
+
+        <span
+          class="stat-label"
+          id="win-rate-label"
+        >
+          Win Rate
+        </span>
+      </div>
+
+
+      <div class="stat-card">
+        <span
+          class="stat-value"
+          id="best-time-stat"
+        >
+          —
+        </span>
+
+        <span
+          class="stat-label"
+          id="best-time-label"
+        >
+          Best Time
+        </span>
+      </div>
+
+
+      <div class="stat-card stat-card-wide">
+
+        <span
+          class="stat-value"
+          id="average-time-stat"
+        >
+          —
+        </span>
+
+        <span
+          class="stat-label"
+          id="average-time-label"
+        >
+          Average Time
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-hint"
+      id="stats-close-btn"
+    >
+      Close
     </button>
 
   </div>
